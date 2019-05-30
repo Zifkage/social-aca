@@ -11,61 +11,72 @@ class navbar extends Component {
     if (currentUser) currentUser = JSON.parse(currentUser);
 
     return (
-      <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
-        <div className="container">
-          <NavLink exact to="/" className="navbar-brand">
+      <nav className='navbar fixed-top navbar-expand-lg navbar-dark bg-primary'>
+        <div className='container'>
+          <NavLink exact to='/' className='navbar-brand'>
             Social-Aca
           </NavLink>
           <button
-            className="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
+            className='navbar-toggler'
+            type='button'
+            data-toggle='collapse'
+            data-target='#navbarNav'
+            aria-controls='navbarNav'
+            aria-expanded='false'
+            aria-label='Toggle navigation'
           >
-            <span className="navbar-toggler-icon" />
+            <span className='navbar-toggler-icon' />
           </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav">
-              <li className="nav-item">
+          <div className='collapse navbar-collapse' id='navbarNav'>
+            <ul className='navbar-nav'>
+              <li className='nav-item'>
                 <NavLink
                   exact
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/"
+                  className='nav-link'
+                  activeClassName='active'
+                  to='/'
                 >
                   Accueil
                 </NavLink>
               </li>
-              <li className="nav-item">
+              <li className='nav-item'>
                 <NavLink
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/workshop"
+                  className='nav-link'
+                  activeClassName='active'
+                  to='/workshop'
                 >
                   TD
                 </NavLink>
               </li>
 
               {currentUser && (
-                <li className="nav-item">
+                <li className='nav-item'>
                   <NavLink
-                    className="nav-link"
-                    activeClassName="active"
+                    className='nav-link'
+                    activeClassName='active'
                     to={`/viewer/profile/${currentUser._id}`}
                   >
                     Profile-({currentUser.name})
                   </NavLink>
                 </li>
               )}
+              {currentUser && (
+                <li className='nav-item'>
+                  <NavLink
+                    className='nav-link'
+                    activeClassName='active'
+                    to={`/notifications`}
+                  >
+                    Notifications
+                  </NavLink>
+                </li>
+              )}
               {!currentUser && (
                 <li>
                   <NavLink
-                    activeClassName="active"
-                    to="/login"
-                    className="btn btn-success"
+                    activeClassName='active'
+                    to='/login'
+                    className='btn btn-success'
                   >
                     se connecter
                   </NavLink>
@@ -74,9 +85,9 @@ class navbar extends Component {
               {!currentUser && (
                 <li>
                   <NavLink
-                    activeClassName="active"
-                    to="/register"
-                    className="btn btn-primary"
+                    activeClassName='active'
+                    to='/register'
+                    className='btn btn-primary'
                   >
                     s'enregistrer
                   </NavLink>
@@ -85,8 +96,8 @@ class navbar extends Component {
               {currentUser && (
                 <li>
                   <button
-                    onClick={(e) => this.onLogout()}
-                    className="btn btn-danger"
+                    onClick={e => this.onLogout()}
+                    className='btn btn-danger'
                   >
                     se déconnecter
                   </button>

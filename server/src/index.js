@@ -31,7 +31,7 @@ const handlerToEngineMap = new Map([
   [handlers.workshops.participate, engines.workshops.participate],
   [handlers.workshops.list, engines.workshops.list],
   [handlers.users.list, engines.users.list],
-  [handlers.users.follow, engines.users.follow],
+  [handlers.users.follow, engines.users.follow]
 ]);
 
 const app = express();
@@ -40,9 +40,11 @@ app.use(cors());
 
 // Connection to mlab
 mongoose.Promise = global.Promise;
-mongoose.connect(`${process.env.MONGODB_HOST}`, { useNewUrlParser: true });
-mongoose.connection.on('error', () => {
-  throw new Error('Unable to connect to database!');
+mongoose.connect(`mongodb://localhost:27017/social-aca`, {
+  useNewUrlParser: true
+});
+mongoose.connection.on('error', e => {
+  throw new Error(e);
 });
 
 app.use(bodyParser.json({ limit: 1e6 }));
@@ -51,6 +53,42 @@ app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
 
+app.get('/notifications/:userId', (req, res) => {
+  db.Notification.find({
+    targetUser: req.params.userId
+  })
+    .then(async notifs => {
+      if (notifs.length === 0) return res.json(notifs);
+      await db.Notification.updateMany(
+        {
+          targetUser: req.params.userId
+        },
+        { read: true }
+      );
+      res.json(notifs);
+    })
+    .catch(err => res.send(err));
+});
+
+app.post('/trackcourses/:userId', (req, res) => {
+  db.User.findOneAndUpdate(
+    {
+      _id: req.params.userId
+    },
+    { trackcourses: req.body.courses }
+  )
+    .then(result => res.json(result))
+    .catch(err => res.send(err));
+});
+
+app.get('/trackcourses/:userId', (req, res) => {
+  db.User.find({
+    _id: req.params.userId
+  })
+    .then(result => res.json({ courses: result[0].trackcourses }))
+    .catch(err => res.send(err));
+});
+
 // USERS
 app.post(
   '/users',
@@ -58,24 +96,24 @@ app.post(
     handlers.users.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage,
-  ),
+    generateErrorMessage
+  )
 );
 
 app.get(
   '/users/:userId',
-  injectHandlerDependencies(handlers.users.retrieve, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.users.retrieve, db, handlerToEngineMap)
 );
 
 app.get(
   '/users',
-  injectHandlerDependencies(handlers.users.list, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.users.list, db, handlerToEngineMap)
 );
 
 app.post(
   '/users/follow/:userId',
   checkUserAuth(db),
-  injectHandlerDependencies(handlers.users.follow, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.users.follow, db, handlerToEngineMap)
 );
 
 // POSTS
@@ -86,23 +124,23 @@ app.post(
     handlers.posts.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage,
-  ),
+    generateErrorMessage
+  )
 );
 
 app.get(
   '/posts/:postId',
-  injectHandlerDependencies(handlers.posts.retrieve, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.posts.retrieve, db, handlerToEngineMap)
 );
 
 app.get(
   '/posts',
-  injectHandlerDependencies(handlers.posts.list, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.posts.list, db, handlerToEngineMap)
 );
 
 app.delete(
   '/posts',
-  injectHandlerDependencies(handlers.posts.delete, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.posts.delete, db, handlerToEngineMap)
 );
 
 app.post(
@@ -112,14 +150,14 @@ app.post(
     handlers.posts.vote,
     db,
     handlerToEngineMap,
-    generateErrorMessage,
-  ),
+    generateErrorMessage
+  )
 );
 
 app.patch(
   '/posts/:postId/:responseId/solve',
   checkUserAuth(db),
-  injectHandlerDependencies(handlers.posts.solve, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.posts.solve, db, handlerToEngineMap)
 );
 
 // RESPONSE
@@ -130,8 +168,8 @@ app.post(
     handlers.responses.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage,
-  ),
+    generateErrorMessage
+  )
 );
 
 app.post(
@@ -141,8 +179,8 @@ app.post(
     handlers.responses.vote,
     db,
     handlerToEngineMap,
-    generateErrorMessage,
-  ),
+    generateErrorMessage
+  )
 );
 
 // WORKSHOP
@@ -153,17 +191,13 @@ app.post(
     handlers.workshops.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage,
-  ),
+    generateErrorMessage
+  )
 );
 
 app.get(
   '/workshops/:workshopId',
-  injectHandlerDependencies(
-    handlers.workshops.retrieve,
-    db,
-    handlerToEngineMap,
-  ),
+  injectHandlerDependencies(handlers.workshops.retrieve, db, handlerToEngineMap)
 );
 
 app.patch(
@@ -172,19 +206,19 @@ app.patch(
   injectHandlerDependencies(
     handlers.workshops.participate,
     db,
-    handlerToEngineMap,
-  ),
+    handlerToEngineMap
+  )
 );
 
 app.get(
   '/workshops',
-  injectHandlerDependencies(handlers.workshops.list, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.workshops.list, db, handlerToEngineMap)
 );
 
 // AUTH
 app.post(
   '/login',
-  injectHandlerDependencies(handlers.auth.login, db, handlerToEngineMap),
+  injectHandlerDependencies(handlers.auth.login, db, handlerToEngineMap)
 );
 
 app.post('/logout', function(req, res) {
@@ -198,6 +232,6 @@ app.use(handlers.errorHandler);
 
 app.listen(process.env.SERVER_PORT, () => {
   console.log(
-    `Social-Aca API server listening on port ${process.env.SERVER_PORT}!`,
+    `Social-Aca API server listening on port ${process.env.SERVER_PORT}!`
   );
 });
