@@ -10,6 +10,7 @@ import WorkshopPage from './components/workshopPage';
 import PostDetail from './components/postDetail';
 import WorkshopDetail from './components/workshopDetail';
 import Notification from './components/notification';
+import Top from './components/top';
 
 class App extends Component {
   render() {
@@ -26,6 +27,7 @@ class App extends Component {
           <Route exact path='/workshop' component={WorkshopPage} />
           <Route path='/post/:postId' component={PostDetail} />
           <Route path='/workshop/:workshopId' component={WorkshopDetail} />
+          <Route path='/top' component={Top} />
         </div>
       </div>
     );

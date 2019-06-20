@@ -110,3 +110,23 @@ export const trackcourses = (userId, courses) => {
 export const getTrackcourses = userId => {
   return ax.get(`/trackcourses/${userId}`, {}, tokenHeader());
 };
+
+export const participations = userId => {
+  return ax.get(`/participations/${userId}`, {}, tokenHeader());
+};
+
+export const note = (workshopId, note, userId) => {
+  return ax.post(`/note/${workshopId}`, { note, userId }, tokenHeader());
+};
+
+export const top = () => {
+  return ax.get('/top', {}, tokenHeader());
+};
+
+export const mytd = () => {
+  return ax.get('/mytd/' + getUserId(), {}, tokenHeader());
+};
+
+export const mypb = () => {
+  return ax.get('/mypb/' + getUserId(), {}, tokenHeader());
+};

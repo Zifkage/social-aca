@@ -4,6 +4,10 @@ import CreatePost from './createPost';
 import * as ClientAPI from '../ClientAPI';
 import CreateWorkshop from './createWorkshop';
 import UserInfo from './userInfo';
+import Workshop from './workshop';
+import Back from './back';
+import MyTd from './MyTd';
+import MyPb from './MyPb';
 
 const resolveFollowUserQuery = () => state => {
   let currentUser = localStorage.getItem('currentUser');
@@ -23,28 +27,26 @@ class profile extends Component {
     isLoading: true,
     userInfo: '',
     courses: [],
+    participations: [],
     message: ''
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     const {
       match: {
         params: { userId }
       }
     } = this.props;
-    ClientAPI.getUser(userId)
-      .then(res1 => {
-        ClientAPI.getTrackcourses(userId)
-          .then(res2 =>
-            this.setState({
-              isLoading: false,
-              userInfo: res1.data,
-              courses: res2.data.courses
-            })
-          )
-          .catch(console.log);
-      })
-      .catch(err => console.log(err));
+    const res1 = await ClientAPI.getUser(userId);
+    const res2 = await ClientAPI.getTrackcourses(userId);
+    const res3 = await ClientAPI.participations(userId);
+
+    this.setState({
+      isLoading: false,
+      userInfo: res1.data,
+      courses: res2.data.courses,
+      participations: res3.data
+    });
   }
 
   onFollow = userId => {
@@ -106,165 +108,221 @@ class profile extends Component {
       'structure algégrique'
     ].sort();
     return !this.state.isLoading ? (
-      <div className='row'>
-        <div className='col-4 list-group-item list-group-item-action'>
-          <NavLink
-            exact
-            activeClassName='active'
-            to={`${match.url}`}
-            className='list-group-item list-group-item-action '
-          >
-            Info utilisateur
-          </NavLink>
-          <NavLink
-            exact
-            activeClassName='active'
-            to={`${match.url}/followers`}
-            className='list-group-item list-group-item-action '
-          >
-            Abonnées
-          </NavLink>
-          <NavLink
-            exact
-            activeClassName='active'
-            to={`${match.url}/following`}
-            className='list-group-item list-group-item-action '
-          >
-            Abonnement
-          </NavLink>
-          {this.state.userInfo._id === currentUser._id && (
+      <div>
+        <div className='row'>
+          <div className='col-4 list-group-item list-group-item-action'>
             <NavLink
+              exact
               activeClassName='active'
-              to={`${match.url}/create-post`}
+              to={`${match.url}`}
               className='list-group-item list-group-item-action '
             >
-              Poster un problème
+              Info utilisateur
             </NavLink>
-          )}
-          {this.state.userInfo._id === currentUser._id && (
             <NavLink
+              exact
               activeClassName='active'
-              to={`${match.url}/create-workshop`}
-              className='list-group-item list-group-item-action'
-            >
-              Créer un TD
-            </NavLink>
-          )}
-          {this.state.userInfo._id === currentUser._id && (
-            <NavLink
-              activeClassName='active'
-              to={`${match.url}/config`}
+              to={`${match.url}/mytd`}
               className='list-group-item list-group-item-action '
             >
-              Paramètrages
+              Mes TD
             </NavLink>
-          )}
-        </div>
-        <div className='col-8'>
-          <Route
-            exact
-            path={`${match.url}`}
-            render={() => {
-              return (
-                <UserInfo
-                  alreadySub={alreadySub}
-                  onFollow={this.onFollow}
-                  user={this.state.userInfo}
-                />
-              );
-            }}
-          />
-          <Route path={`${match.url}/create-post`} component={CreatePost} />
-          <Route
-            path={`${match.url}/create-workshop`}
-            component={CreateWorkshop}
-          />
-          <Route
-            path={`${match.url}/followers`}
-            render={() => (
-              <div>
-                <h3>{`${followers.length} abonné(s)`}</h3>
-                <ul className='list-group'>
-                  {followers.map(p => (
-                    <li
-                      className='list-group-item list-group-item-success'
-                      key={p._id}
-                    >
-                      <img
-                        style={{ width: '50px' }}
-                        src='/costar.jpg'
-                        className='img-thumbnail'
-                        alt='costar'
-                      />
-                      <NavLink to={`/profile/${p._id}`}>{p.name}</NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <NavLink
+              exact
+              activeClassName='active'
+              to={`${match.url}/mypb`}
+              className='list-group-item list-group-item-action '
+            >
+              Mes préoccupations
+            </NavLink>
+            {this.state.userInfo._id === currentUser._id && (
+              <NavLink
+                activeClassName='active'
+                to={`${match.url}/participations`}
+                className='list-group-item list-group-item-action '
+              >
+                Mes participations
+              </NavLink>
             )}
-          />
-          <Route
-            path={`${match.url}/following`}
-            render={() => (
-              <div>
-                <h3>{`${following.length} abonnement(s)`}</h3>
-                <ul className='list-group'>
-                  {following.map(p => (
-                    <li
-                      className='list-group-item list-group-item-success'
-                      key={p._id}
-                      style={{ marginBottom: '10px' }}
-                    >
-                      <img
-                        style={{ width: '50px' }}
-                        src='/costar.jpg'
-                        className='img-thumbnail'
-                        alt='costar'
-                      />
-                      <NavLink to={`/profile/${p._id}`}>{p.name}</NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <NavLink
+              exact
+              activeClassName='active'
+              to={`${match.url}/followers`}
+              className='list-group-item list-group-item-action '
+            >
+              Abonnées
+            </NavLink>
+            <NavLink
+              exact
+              activeClassName='active'
+              to={`${match.url}/following`}
+              className='list-group-item list-group-item-action '
+            >
+              Abonnement
+            </NavLink>
+            {this.state.userInfo._id === currentUser._id && (
+              <NavLink
+                activeClassName='active'
+                to={`${match.url}/create-post`}
+                className='list-group-item list-group-item-action '
+              >
+                Poster un problème
+              </NavLink>
             )}
-          />
-          <Route
-            path={`${match.url}/config`}
-            render={() => (
-              <div>
-                <h2>Paramètrages</h2>
-                <br />
-                <h4>Choisissez les matières qui vous posent problème</h4>
-                <form onSubmit={this.onSubmitCourses}>
-                  {courses.map(c => (
-                    <div
-                      style={{ fontSize: '18px' }}
-                      className='form-check form-check-inline'
-                    >
-                      <input
-                        onChange={this.onCheckChange}
-                        className='form-check-input'
-                        type='checkbox'
-                        id='inlineCheckbox1'
-                        value={c}
-                        checked={this.state.courses.includes(c)}
-                      />
-                      <label className='form-check-label'>{c}</label>
-                    </div>
-                  ))}
-                  <br />
-                  <br />
+            {this.state.userInfo._id === currentUser._id && (
+              <NavLink
+                activeClassName='active'
+                to={`${match.url}/create-workshop`}
+                className='list-group-item list-group-item-action'
+              >
+                Créer un TD
+              </NavLink>
+            )}
+            {this.state.userInfo._id === currentUser._id && (
+              <NavLink
+                activeClassName='active'
+                to={`${match.url}/config`}
+                className='list-group-item list-group-item-action '
+              >
+                Paramètrages
+              </NavLink>
+            )}
+          </div>
+          <div className='col-8'>
+            <Route
+              exact
+              path={`${match.url}`}
+              render={() => {
+                return (
+                  <UserInfo
+                    alreadySub={alreadySub}
+                    onFollow={this.onFollow}
+                    user={this.state.userInfo}
+                  />
+                );
+              }}
+            />
+            <Route path={`${match.url}/create-post`} component={CreatePost} />
+            <Route path={`${match.url}/mytd`} component={MyTd} />
+            <Route path={`${match.url}/mypb`} component={MyPb} />
 
-                  <button className='btn btn-primary'>Enregistrer</button>
-                  {this.state.message && (
-                    <span className='alert alert-success'>
-                      {this.state.message}
-                    </span>
-                  )}
-                </form>
-              </div>
-            )}
-          />
+            <Route
+              path={`${match.url}/create-workshop`}
+              component={CreateWorkshop}
+            />
+            <Route
+              path={`${match.url}/followers`}
+              render={() => (
+                <div>
+                  <h3>{`${followers.length} abonné(s)`}</h3>
+                  <ul className='list-group'>
+                    {followers.map(p => (
+                      <li
+                        className='list-group-item list-group-item-success'
+                        key={p._id}
+                      >
+                        <img
+                          style={{ width: '50px' }}
+                          src='/costar.jpg'
+                          className='img-thumbnail'
+                          alt='costar'
+                        />
+                        <NavLink to={`/profile/${p._id}`}>{p.name}</NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            />
+            <Route
+              path={`${match.url}/following`}
+              render={() => (
+                <div>
+                  <h3>{`${following.length} abonnement(s)`}</h3>
+                  <ul className='list-group'>
+                    {following.map(p => (
+                      <li
+                        className='list-group-item list-group-item-success'
+                        key={p._id}
+                        style={{ marginBottom: '10px' }}
+                      >
+                        <img
+                          style={{ width: '50px' }}
+                          src='/costar.jpg'
+                          className='img-thumbnail'
+                          alt='costar'
+                        />
+                        <NavLink to={`/profile/${p._id}`}>{p.name}</NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            />
+            <Route
+              path={`${match.url}/config`}
+              render={() => (
+                <div>
+                  <h2>Paramètrages</h2>
+                  <br />
+                  <h4>Choisissez les matières qui vous posent problème</h4>
+                  <form onSubmit={this.onSubmitCourses}>
+                    {courses.map(c => (
+                      <div
+                        style={{ fontSize: '18px' }}
+                        className='form-check form-check-inline'
+                      >
+                        <input
+                          onChange={this.onCheckChange}
+                          className='form-check-input'
+                          type='checkbox'
+                          id='inlineCheckbox1'
+                          value={c}
+                          checked={this.state.courses.includes(c)}
+                        />
+                        <label className='form-check-label'>{c}</label>
+                      </div>
+                    ))}
+                    <br />
+                    <br />
+
+                    <button className='btn btn-primary'>Enregistrer</button>
+                    {this.state.message && (
+                      <span className='alert alert-success'>
+                        {this.state.message}
+                      </span>
+                    )}
+                  </form>
+                </div>
+              )}
+            />
+            <Route
+              path={`${match.url}/participations`}
+              render={() => (
+                <div>
+                  <h3>Participations</h3>
+                  <div>
+                    {this.state.participations.length === 0 ? (
+                      <span style={{ color: 'red' }}>
+                        (Vous ne participez à aucun TD)
+                      </span>
+                    ) : (
+                      this.state.participations.map(w => {
+                        return (
+                          <Workshop
+                            navigable
+                            loc='list'
+                            key={w._id}
+                            workshop={w}
+                          />
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          </div>
         </div>
       </div>
     ) : (

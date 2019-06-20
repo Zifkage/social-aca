@@ -17,11 +17,16 @@ const UserSchema = new mongoose.Schema({
   followers: [],
   following: [],
   trackcourses: [],
+  points: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Number,
     default: Date.now
   },
-  updatedAt: Number
+  updatedAt: Number,
+  notes: []
 });
 
 export default {

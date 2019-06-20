@@ -34,7 +34,8 @@ const WorkshopSchema = new mongoose.Schema({
   course: {
     type: String,
     required: true
-  }
+  },
+  notes: []
 });
 
 export default mongoose.model('Workshop', WorkshopSchema);

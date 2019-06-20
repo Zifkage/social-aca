@@ -43,3 +43,53 @@
 .wdetail span i {
   margin-right: 5px;
 }
+
+.tile {
+  display: inline-block;
+  width: 45%;
+  padding: 15px;
+  text-align: center;
+  color: whitesmoke;
+  margin-left: 12px;
+}
+
+.tile-note {
+  background-color: green;
+  font-size: 50px;
+}
+
+.tile-aide {
+  background-color: orangered;
+  font-size: 50px;
+}
+
+.tile-contact {
+  background-color: grey;
+  height: 100px;
+}
+.tile-email {
+  background-color: grey;
+  height: 100px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.bio {
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.top-n {
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.mb {
+  margin-bottom: 20px;
+}

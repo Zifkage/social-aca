@@ -1,7 +1,7 @@
 function solve(req, db) {
   return new Promise((resolve, reject) => {
     const user = db.currentUser[req.get('token')];
-    db.Post.findById(req.params.postId).then(post => {
+    db.Post.findById(req.params.postId).then(async post => {
       if (!post) {
         return reject({ type: 'postNotFound' });
       }
@@ -20,6 +20,10 @@ function solve(req, db) {
       const postSolution = post.responses.find(
         response => response._id.toString() == req.params.responseId.toString()
       );
+
+      const solver = await db.User.findOne({ _id: postSolution.author._id });
+
+      await db.User.update({ _id: solver._id }, { points: solver.points + 12 });
 
       postSolution.solution = true;
 

@@ -70,6 +70,37 @@ app.get('/notifications/:userId', (req, res) => {
     .catch(err => res.send(err));
 });
 
+app.get('/participations/:userId', async (req, res) => {
+  const w = await db.Workshop.find();
+  const uW = w.filter(
+    w =>
+      w.participants.findIndex(p => p._id.toString() === req.params.userId) !==
+      -1
+  );
+  res.json(uW);
+});
+
+app.post('/note/:workshopId', async (req, res) => {
+  const w = await db.Workshop.findById(req.params.workshopId);
+  const author = await db.User.findById(w.author._id);
+  const noteIndex = w.notes.findIndex(n => n.userId === req.body.userId);
+  if (noteIndex !== -1)
+    return res.status(400).json({ message: 'already note' });
+  author.notes.push(req.body.note);
+  await author.save();
+  w.notes.push({
+    point: req.body.note,
+    userId: req.body.userId
+  });
+  w.save(err => {
+    if (err) {
+      return res.status(400).send(err);
+    }
+
+    res.send('OK');
+  });
+});
+
 app.post('/trackcourses/:userId', (req, res) => {
   db.User.findOneAndUpdate(
     {
@@ -87,6 +118,25 @@ app.get('/trackcourses/:userId', (req, res) => {
   })
     .then(result => res.json({ courses: result[0].trackcourses }))
     .catch(err => res.send(err));
+});
+
+app.get('/top', async (req, res) => {
+  const users = await db.User.find();
+  if (users.length === 0) return res.json(users);
+  const sortedUsers = users.sort((a, b) => b.points - a.points);
+  res.json(sortedUsers);
+});
+
+app.get('/mytd/:userId', async (req, res) => {
+  let td = await db.Workshop.find();
+  td = td.filter(t => t.author._id.toString() === req.params.userId);
+  res.json(td);
+});
+
+app.get('/mypb/:userId', async (req, res) => {
+  let posts = await db.Post.find();
+  posts = posts.filter(p => p.author._id.toString() === req.params.userId);
+  res.json(posts);
 });
 
 // USERS

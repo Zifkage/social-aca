@@ -85,13 +85,25 @@ const post = props => {
               >
                 {props.post.title}
                 {solution ? '-[Résolu]' : ''}{' '}
-                <span style={{ color: 'grey' }}>#{props.post.course}</span>
+                {props.post.course ? (
+                  <span style={{ color: 'grey' }}>
+                    {'#' + props.post.course}
+                  </span>
+                ) : (
+                  ''
+                )}
               </Link>
             ) : (
               <span>
                 {props.post.title}
                 {solution ? '-[Résolu]' : ''}{' '}
-                <span style={{ color: 'grey' }}>#{props.post.course}</span>
+                {props.post.course ? (
+                  <span style={{ color: 'grey' }}>
+                    {'#' + props.post.course}
+                  </span>
+                ) : (
+                  ''
+                )}
               </span>
             )}
           </h4>

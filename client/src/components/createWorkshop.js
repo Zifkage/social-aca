@@ -77,10 +77,15 @@ export default class createWorkshop extends Component {
         setTimeout(() => this.setState({ message: '' }), 1500);
       })
       .catch(err => {
+        console.log(err.response.data);
+        if (err.response.data.message === 'pastdate') {
+          return this.setState({
+            message: 'Veuillez choisir une date correct.'
+          });
+        }
         this.setState({
           message: 'Tous les champs doivent être remplis.'
         });
-        console.log(err);
       });
   };
   render() {

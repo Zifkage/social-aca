@@ -71,6 +71,17 @@ class navbar extends Component {
                   </NavLink>
                 </li>
               )}
+              {currentUser && (
+                <li className='nav-item'>
+                  <NavLink
+                    className='nav-link'
+                    activeClassName='active'
+                    to={`/top`}
+                  >
+                    Top 10
+                  </NavLink>
+                </li>
+              )}
               {!currentUser && (
                 <li>
                   <NavLink

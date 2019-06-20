@@ -7,7 +7,10 @@ import * as ClientAPI from '../ClientAPI';
 export default class workshop extends Component {
   state = {
     participe: false,
-    participants: [...this.props.workshop.participants]
+    participants: [...this.props.workshop.participants],
+    notes: [...this.props.workshop.notes],
+    note: '',
+    message: ''
   };
 
   onParticipate = () => {
@@ -27,9 +30,35 @@ export default class workshop extends Component {
       .catch(err => console.log(err));
   };
 
+  onNote = async () => {
+    let currentUser = localStorage.getItem('currentUser');
+    if (currentUser) currentUser = JSON.parse(currentUser);
+    const { _id } = this.props.workshop;
+    if (!this.state.note) {
+      return this.setState({
+        message: 'Selectionnez une note'
+      });
+    }
+    try {
+      await ClientAPI.note(_id, this.state.note, currentUser._id.toString());
+      this.setState({
+        notes: [
+          ...this.state.notes,
+          { userId: currentUser._id.toString(), point: this.state.note }
+        ],
+        message: ''
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  onNoteChange = e => {
+    this.setState({ note: e.target.value });
+  };
   render() {
-    const { workshop, loc, navigable } = this.props;
-    const { participants } = this.state;
+    const { workshop, loc, navigable, participations } = this.props;
+    const { participants, note } = this.state;
 
     let currentUser = localStorage.getItem('currentUser');
     if (currentUser) currentUser = JSON.parse(currentUser);
@@ -37,6 +66,9 @@ export default class workshop extends Component {
       p => p._id === currentUser._id
     );
     moment.locale('fr');
+    const userNote = this.state.notes.find(n => n.userId === currentUser._id);
+    const timeToNote = Date.now() - new Date(workshop.dateStart).getTime() >= 0;
+    if (timeToNote && !userParticipate) return null;
     return (
       <div>
         <div className='card border-dark mb-3'>
@@ -89,22 +121,107 @@ export default class workshop extends Component {
               </span>
             </div>
             {currentUser._id !== workshop.author._id && (
-              <button
-                onClick={() =>
-                  userParticipate || this.state.participe
-                    ? ''
-                    : this.onParticipate()
-                }
-                className={`btn ${
-                  userParticipate || this.state.participe
-                    ? 'btn-success'
-                    : 'btn-primary'
-                }`}
-              >
-                {userParticipate || this.state.participe
-                  ? 'Participe'
-                  : 'Participer'}
-              </button>
+              <div>
+                {!participations && !timeToNote ? (
+                  <button
+                    onClick={() =>
+                      userParticipate || this.state.participe
+                        ? ''
+                        : this.onParticipate()
+                    }
+                    className={`btn ${
+                      userParticipate || this.state.participe
+                        ? 'btn-success'
+                        : 'btn-primary'
+                    }`}
+                  >
+                    {(userParticipate && !timeToNote) || this.state.participe
+                      ? 'Participe'
+                      : 'Participer'}
+                  </button>
+                ) : (
+                  <div style={{ textAlign: 'center' }}>
+                    {!userNote ? (
+                      <div>
+                        <h4 className='text-primary'>En attente de note</h4>
+                        <select
+                          style={{
+                            width: '65px',
+                            display: 'inline-block',
+                            fontSize: '25px'
+                          }}
+                          name='course'
+                          onChange={this.onNoteChange}
+                          value={note}
+                          className='form-control'
+                          id='exampleFormControlSelect1'
+                        >
+                          <option disabled selected value=''>
+                            ---
+                          </option>
+                          <option value={1}>1</option>
+                          <option value={2}>2</option>
+                          <option value={3}>3</option>
+                          <option value={4}>4</option>
+                          <option value={5}>5</option>
+                        </select>{' '}
+                        <span
+                          style={{
+                            fontSize: '25px'
+                          }}
+                        >
+                          {' '}
+                          / 5
+                        </span>{' '}
+                        <br />
+                        {this.state.message && (
+                          <span>{this.state.message}</span>
+                        )}
+                        <br />
+                        <button
+                          onClick={this.onNote}
+                          className='btn btn-warning'
+                        >
+                          Soumettre note
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <h4 className='text-success'>Vous avez noté</h4>
+                        <select
+                          disabled
+                          style={{
+                            width: '65px',
+                            display: 'inline-block',
+                            fontSize: '25px'
+                          }}
+                          name='course'
+                          value={userNote.point}
+                          className='form-control'
+                          id='exampleFormControlSelect1'
+                        >
+                          <option disabled selected value=''>
+                            ---
+                          </option>
+                          <option value={1}>1</option>
+                          <option value={2}>2</option>
+                          <option value={3}>3</option>
+                          <option value={4}>4</option>
+                          <option value={5}>5</option>
+                        </select>{' '}
+                        <span
+                          style={{
+                            fontSize: '25px'
+                          }}
+                        >
+                          {' '}
+                          / 5
+                        </span>{' '}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
