@@ -67,7 +67,7 @@ export default class register extends Component {
 
     ClientAPI.createUser(this.state.form)
       .then((response) => {
-        this.props.history.push('/login');
+        this.props.history.push('/student/login');
       })
       .catch((err) => {
         this.setState({

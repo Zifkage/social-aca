@@ -5,14 +5,14 @@ import Workshop from './workshop';
 export default class MyTd extends Component {
   state = {
     isLoading: true,
-    workshops: []
+    workshops: [],
   };
 
   componentDidMount() {
-    ClientAPI.mytd().then(res => {
+    ClientAPI.mytd().then((res) => {
       this.setState({
         isLoading: false,
-        workshops: res.data
+        workshops: res.data,
       });
     });
   }
@@ -24,8 +24,26 @@ export default class MyTd extends Component {
     return (
       !this.state.isLoading && (
         <div>
-          {this.state.workshops.map(w => {
-            return <Workshop navigable loc='list' key={w._id} workshop={w} />;
+          <form onSubmit={this.onSearch} className="navbar-form" role="search">
+            <div className="input-group add-on">
+              <input
+                className="form-control"
+                placeholder="Recherche"
+                name="srch-term"
+                id="srch-term"
+                type="text"
+                value={this.state.search}
+                onChange={this.onChange}
+              />
+              <div className="input-group-btn">
+                <button className="btn btn-default" type="submit">
+                  <i className="fa fa-search" />
+                </button>
+              </div>
+            </div>
+          </form>
+          {this.state.workshops.map((w) => {
+            return <Workshop navigable loc="list" key={w._id} workshop={w} />;
           })}
         </div>
       )

@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom';
 
 export default class top extends Component {
   state = {
-    users: []
+    users: [],
   };
 
   async componentDidMount() {
     const res = await client.top();
     this.setState({
-      users: res.data
+      users: res.data,
     });
   }
 
@@ -19,60 +19,60 @@ export default class top extends Component {
 
     return (
       <div>
-        <h3 className='mb'>Les meilleur résolveurs des 7 derniers jours</h3>
-        <ul className='list-group'>
+        <h3 className="mb">Les meilleur résolveurs des 7 derniers jours</h3>
+        <ul className="list-group">
           {users.map((u, i) => {
-            if (i == 0) {
+            if (i === 0) {
               return (
                 <li
-                  className='list-group-item list-group-item-warning'
+                  className="list-group-item list-group-item-warning"
                   key={u._id}
                   style={{ marginBottom: '10px' }}
                 >
-                  <span className='top-n'>{i + 1}</span>
+                  <span className="top-n">{i + 1}</span>
                   <img
                     style={{ width: '50px' }}
-                    src='/costar.jpg'
-                    className='img-thumbnail'
-                    alt='costar'
+                    src="/costar.jpg"
+                    className="img-thumbnail"
+                    alt="costar"
                   />
                   <Link style={{ color: 'black' }} to={`/profile/${u._id}`}>
                     {u.name}
                   </Link>{' '}
                 </li>
               );
-            } else if (i == 1) {
+            } else if (i === 1) {
               return (
                 <li
-                  className='list-group-item list-group-item-primary'
+                  className="list-group-item list-group-item-primary"
                   key={u._id}
                   style={{ marginBottom: '10px' }}
                 >
-                  <span className='top-n'>{i + 1}</span>
+                  <span className="top-n">{i + 1}</span>
                   <img
                     style={{ width: '50px' }}
-                    src='/costar.jpg'
-                    className='img-thumbnail'
-                    alt='costar'
+                    src="/costar.jpg"
+                    className="img-thumbnail"
+                    alt="costar"
                   />
                   <Link style={{ color: 'black' }} to={`/profile/${u._id}`}>
                     {u.name}
                   </Link>{' '}
                 </li>
               );
-            } else if (i == 2) {
+            } else if (i === 2) {
               return (
                 <li
-                  className='list-group-item list-group-item-secondary'
+                  className="list-group-item list-group-item-secondary"
                   key={u._id}
                   style={{ marginBottom: '10px' }}
                 >
-                  <span className='top-n'>{i + 1}</span>
+                  <span className="top-n">{i + 1}</span>
                   <img
                     style={{ width: '50px' }}
-                    src='/costar.jpg'
-                    className='img-thumbnail'
-                    alt='costar'
+                    src="/costar.jpg"
+                    className="img-thumbnail"
+                    alt="costar"
                   />
                   <Link style={{ color: 'black' }} to={`/profile/${u._id}`}>
                     {u.name}
@@ -82,16 +82,16 @@ export default class top extends Component {
             }
             return (
               <li
-                className='list-group-item list-group-item-light'
+                className="list-group-item list-group-item-light"
                 key={u._id}
                 style={{ marginBottom: '10px' }}
               >
-                <span className='top-n'>{i + 1}</span>
+                <span className="top-n">{i + 1}</span>
                 <img
                   style={{ width: '50px' }}
-                  src='/costar.jpg'
-                  className='img-thumbnail'
-                  alt='costar'
+                  src="/costar.jpg"
+                  className="img-thumbnail"
+                  alt="costar"
                 />
                 <Link style={{ color: 'black' }} to={`/profile/${u._id}`}>
                   {u.name}

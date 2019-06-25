@@ -1,4 +1,6 @@
 function create(req, db, generateErrorMessage) {
+  console.log(db.currentUser[req.get('token')]);
+
   return new Promise((resolve, reject) => {
     db.Post.create({
       ...req.body,

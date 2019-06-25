@@ -5,11 +5,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true,
     match: [/^[\w\.+]+@\w+\.\w+$/, "The 'email' field must be a valid email"],
-    required: [true, "The 'email' field is missing"]
+    required: [true, "The 'email' field is missing"],
   },
   password: {
     type: String,
-    required: [true, "The 'password' field is missing"]
+    required: [true, "The 'password' field is missing"],
   },
   name: { type: String, required: [true, "The 'name' field is missing"] },
   contact: { type: String, required: [true, "The 'contact' field is missing"] },
@@ -19,17 +19,18 @@ const UserSchema = new mongoose.Schema({
   trackcourses: [],
   points: {
     type: Number,
-    default: 0
+    default: 0,
   },
+  admin: false,
   createdAt: {
     type: Number,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: Number,
-  notes: []
+  notes: [],
 });
 
 export default {
   model: mongoose.model('User', UserSchema),
-  schema: UserSchema
+  schema: UserSchema,
 };

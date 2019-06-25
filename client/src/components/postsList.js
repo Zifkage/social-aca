@@ -6,6 +6,8 @@ const postsList = (props) => {
     <div>
       {props.posts.map((p) => (
         <Post
+          onDelete={props.onDelete}
+          admin={props.admin}
           onVote={props.onVote}
           navigable={props.postNavigable}
           key={p._id}

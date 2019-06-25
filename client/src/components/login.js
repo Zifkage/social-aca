@@ -34,7 +34,7 @@ class login extends Component {
     ClientAPI.login(this.state.form)
       .then((response) => {
         localStorage.setItem('currentUser', JSON.stringify(response.data));
-        this.props.history.push('/');
+        this.props.history.push(this.props.redirectTo);
       })
       .catch((err) => console.log(err));
   };
@@ -43,35 +43,29 @@ class login extends Component {
     return (
       <div>
         <h2>Se connecter</h2>
-        <div className="row">
-          <form onSubmit={this.onFormSubmit} className="col s12">
-            <div className="row">
-              <div className="input-field col s12">
-                <input
-                  onChange={this.onInputChange}
-                  id="email"
-                  type="email"
-                  className="validate"
-                  placeholder="Email"
-                  value={this.state.form.email}
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="input-field col s12">
-                <input
-                  onChange={this.onInputChange}
-                  id="password"
-                  type="password"
-                  className="validate"
-                  placeholder="Mot de passe"
-                  value={this.state.form.password}
-                />
-              </div>
-            </div>
-            <button className="btn">valider</button>
-          </form>
-        </div>
+        <form onSubmit={this.onFormSubmit}>
+          <div className="form-group">
+            <input
+              onChange={this.onInputChange}
+              id="email"
+              type="email"
+              className="form-control"
+              placeholder="Email"
+              value={this.state.form.email}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              onChange={this.onInputChange}
+              id="password"
+              type="password"
+              className="form-control"
+              placeholder="Mot de passe"
+              value={this.state.form.password}
+            />
+          </div>
+          <button className="btn">valider</button>
+        </form>
       </div>
     );
   }

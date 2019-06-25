@@ -31,7 +31,7 @@ const handlerToEngineMap = new Map([
   [handlers.workshops.participate, engines.workshops.participate],
   [handlers.workshops.list, engines.workshops.list],
   [handlers.users.list, engines.users.list],
-  [handlers.users.follow, engines.users.follow]
+  [handlers.users.follow, engines.users.follow],
 ]);
 
 const app = express();
@@ -41,9 +41,9 @@ app.use(cors());
 // Connection to mlab
 mongoose.Promise = global.Promise;
 mongoose.connect(`mongodb://localhost:27017/social-aca`, {
-  useNewUrlParser: true
+  useNewUrlParser: true,
 });
-mongoose.connection.on('error', e => {
+mongoose.connection.on('error', (e) => {
   throw new Error(e);
 });
 
@@ -55,27 +55,28 @@ app.use(checkContentTypeIsJson);
 
 app.get('/notifications/:userId', (req, res) => {
   db.Notification.find({
-    targetUser: req.params.userId
+    targetUser: req.params.userId,
   })
-    .then(async notifs => {
+    .then(async (notifs) => {
       if (notifs.length === 0) return res.json(notifs);
       await db.Notification.updateMany(
         {
-          targetUser: req.params.userId
+          targetUser: req.params.userId,
         },
-        { read: true }
+        { read: true },
       );
       res.json(notifs);
     })
-    .catch(err => res.send(err));
+    .catch((err) => res.send(err));
 });
 
 app.get('/participations/:userId', async (req, res) => {
   const w = await db.Workshop.find();
   const uW = w.filter(
-    w =>
-      w.participants.findIndex(p => p._id.toString() === req.params.userId) !==
-      -1
+    (w) =>
+      w.participants.findIndex(
+        (p) => p._id.toString() === req.params.userId,
+      ) !== -1,
   );
   res.json(uW);
 });
@@ -83,16 +84,16 @@ app.get('/participations/:userId', async (req, res) => {
 app.post('/note/:workshopId', async (req, res) => {
   const w = await db.Workshop.findById(req.params.workshopId);
   const author = await db.User.findById(w.author._id);
-  const noteIndex = w.notes.findIndex(n => n.userId === req.body.userId);
+  const noteIndex = w.notes.findIndex((n) => n.userId === req.body.userId);
   if (noteIndex !== -1)
     return res.status(400).json({ message: 'already note' });
   author.notes.push(req.body.note);
   await author.save();
   w.notes.push({
     point: req.body.note,
-    userId: req.body.userId
+    userId: req.body.userId,
   });
-  w.save(err => {
+  w.save((err) => {
     if (err) {
       return res.status(400).send(err);
     }
@@ -104,39 +105,91 @@ app.post('/note/:workshopId', async (req, res) => {
 app.post('/trackcourses/:userId', (req, res) => {
   db.User.findOneAndUpdate(
     {
-      _id: req.params.userId
+      _id: req.params.userId,
     },
-    { trackcourses: req.body.courses }
+    { trackcourses: req.body.courses },
   )
-    .then(result => res.json(result))
-    .catch(err => res.send(err));
+    .then((result) => res.json(result))
+    .catch((err) => res.send(err));
 });
 
 app.get('/trackcourses/:userId', (req, res) => {
   db.User.find({
-    _id: req.params.userId
+    _id: req.params.userId,
   })
-    .then(result => res.json({ courses: result[0].trackcourses }))
-    .catch(err => res.send(err));
+    .then((result) => res.json({ courses: result[0].trackcourses }))
+    .catch((err) => res.send(err));
 });
 
 app.get('/top', async (req, res) => {
   const users = await db.User.find();
   if (users.length === 0) return res.json(users);
-  const sortedUsers = users.sort((a, b) => b.points - a.points);
+  let sortedUsers = users.sort((a, b) => b.points - a.points);
+  sortedUsers = sortedUsers.filter((u) => !u.admin);
   res.json(sortedUsers);
 });
 
 app.get('/mytd/:userId', async (req, res) => {
   let td = await db.Workshop.find();
-  td = td.filter(t => t.author._id.toString() === req.params.userId);
+  td = td.filter((t) => t.author._id.toString() === req.params.userId);
   res.json(td);
 });
 
 app.get('/mypb/:userId', async (req, res) => {
   let posts = await db.Post.find();
-  posts = posts.filter(p => p.author._id.toString() === req.params.userId);
+  posts = posts.filter((p) => p.author._id.toString() === req.params.userId);
   res.json(posts);
+});
+
+app.get('/td', async (req, res) => {
+  if (!req.query.search) {
+    let td = await db.Workshop.find();
+    return res.json(td);
+  }
+
+  let td = await db.Workshop.find({
+    title: { $regex: req.query.search, $options: 'i' },
+  });
+  return res.json(td);
+});
+
+app.delete('/td', async (req, res) => {
+  res.json(await db.Workshop.deleteOne({ _id: req.query.id }));
+});
+
+app.delete('/pb', async (req, res) => {
+  res.json(await db.Post.deleteOne({ _id: req.query.id }));
+});
+
+app.get('/pb', async (req, res) => {
+  if (!req.query.search) {
+    let posts = await db.Post.find();
+    return res.json(posts);
+  }
+
+  let posts = await db.Post.find({
+    title: { $regex: req.query.search, $options: 'i' },
+  });
+  return res.json(posts);
+});
+
+app.get('/user-search', async (req, res) => {
+  if (!req.query.search) {
+    let users = await db.User.find();
+    users = users.filter((u) => !u.admin);
+    return res.json(users);
+  }
+
+  let users = await db.User.find({
+    name: { $regex: req.query.search, $options: 'i' },
+  });
+  users = users.filter((u) => !u.admin);
+
+  return res.json(users);
+});
+
+app.delete('/user', async (req, res) => {
+  res.json(await db.User.deleteOne({ _id: req.query.id }));
 });
 
 // USERS
@@ -146,24 +199,24 @@ app.post(
     handlers.users.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage
-  )
+    generateErrorMessage,
+  ),
 );
 
 app.get(
   '/users/:userId',
-  injectHandlerDependencies(handlers.users.retrieve, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.users.retrieve, db, handlerToEngineMap),
 );
 
 app.get(
   '/users',
-  injectHandlerDependencies(handlers.users.list, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.users.list, db, handlerToEngineMap),
 );
 
 app.post(
   '/users/follow/:userId',
   checkUserAuth(db),
-  injectHandlerDependencies(handlers.users.follow, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.users.follow, db, handlerToEngineMap),
 );
 
 // POSTS
@@ -174,23 +227,23 @@ app.post(
     handlers.posts.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage
-  )
+    generateErrorMessage,
+  ),
 );
 
 app.get(
   '/posts/:postId',
-  injectHandlerDependencies(handlers.posts.retrieve, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.posts.retrieve, db, handlerToEngineMap),
 );
 
 app.get(
   '/posts',
-  injectHandlerDependencies(handlers.posts.list, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.posts.list, db, handlerToEngineMap),
 );
 
 app.delete(
   '/posts',
-  injectHandlerDependencies(handlers.posts.delete, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.posts.delete, db, handlerToEngineMap),
 );
 
 app.post(
@@ -200,14 +253,14 @@ app.post(
     handlers.posts.vote,
     db,
     handlerToEngineMap,
-    generateErrorMessage
-  )
+    generateErrorMessage,
+  ),
 );
 
 app.patch(
   '/posts/:postId/:responseId/solve',
   checkUserAuth(db),
-  injectHandlerDependencies(handlers.posts.solve, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.posts.solve, db, handlerToEngineMap),
 );
 
 // RESPONSE
@@ -218,8 +271,8 @@ app.post(
     handlers.responses.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage
-  )
+    generateErrorMessage,
+  ),
 );
 
 app.post(
@@ -229,8 +282,8 @@ app.post(
     handlers.responses.vote,
     db,
     handlerToEngineMap,
-    generateErrorMessage
-  )
+    generateErrorMessage,
+  ),
 );
 
 // WORKSHOP
@@ -241,13 +294,17 @@ app.post(
     handlers.workshops.create,
     db,
     handlerToEngineMap,
-    generateErrorMessage
-  )
+    generateErrorMessage,
+  ),
 );
 
 app.get(
   '/workshops/:workshopId',
-  injectHandlerDependencies(handlers.workshops.retrieve, db, handlerToEngineMap)
+  injectHandlerDependencies(
+    handlers.workshops.retrieve,
+    db,
+    handlerToEngineMap,
+  ),
 );
 
 app.patch(
@@ -256,19 +313,19 @@ app.patch(
   injectHandlerDependencies(
     handlers.workshops.participate,
     db,
-    handlerToEngineMap
-  )
+    handlerToEngineMap,
+  ),
 );
 
 app.get(
   '/workshops',
-  injectHandlerDependencies(handlers.workshops.list, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.workshops.list, db, handlerToEngineMap),
 );
 
 // AUTH
 app.post(
   '/login',
-  injectHandlerDependencies(handlers.auth.login, db, handlerToEngineMap)
+  injectHandlerDependencies(handlers.auth.login, db, handlerToEngineMap),
 );
 
 app.post('/logout', function(req, res) {
@@ -282,6 +339,6 @@ app.use(handlers.errorHandler);
 
 app.listen(process.env.SERVER_PORT, () => {
   console.log(
-    `Social-Aca API server listening on port ${process.env.SERVER_PORT}!`
+    `Social-Aca API server listening on port ${process.env.SERVER_PORT}!`,
   );
 });
