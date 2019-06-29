@@ -8,6 +8,10 @@
   margin-top: 60px;
 }
 
+.post p {
+  white-space: pre-wrap;
+}
+
 .vote {
   font-size: 25px;
   width: 5%;
@@ -95,4 +99,10 @@
 }
 form {
   margin-bottom: 20px;
+}
+
+.file {
+  font-size: 35px;
+  display: inline-block;
+  margin-right: 10px;
 }

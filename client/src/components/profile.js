@@ -158,7 +158,7 @@ class profile extends Component {
               to={`${match.url}/following`}
               className="list-group-item list-group-item-action "
             >
-              Abonnement
+              Abonnements
             </NavLink>
             {this.state.userInfo._id === currentUser._id && (
               <NavLink
@@ -227,7 +227,9 @@ class profile extends Component {
                           className="img-thumbnail"
                           alt="costar"
                         />
-                        <NavLink to={`/profile/${p._id}`}>{p.name}</NavLink>
+                        <NavLink to={`/student/profile/${p._id}`}>
+                          {p.name}
+                        </NavLink>
                       </li>
                     ))}
                   </ul>
@@ -252,7 +254,9 @@ class profile extends Component {
                           className="img-thumbnail"
                           alt="costar"
                         />
-                        <NavLink to={`/profile/${p._id}`}>{p.name}</NavLink>
+                        <NavLink to={`/student/profile/${p._id}`}>
+                          {p.name}
+                        </NavLink>
                       </li>
                     ))}
                   </ul>

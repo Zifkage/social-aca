@@ -19,7 +19,7 @@ export default class top extends Component {
 
     return (
       <div>
-        <h3 className="mb">Les meilleur résolveurs des 7 derniers jours</h3>
+        <h3 className="mb">Les meilleurs résolveurs des 7 derniers jours</h3>
         <ul className="list-group">
           {users.map((u, i) => {
             if (i === 0) {

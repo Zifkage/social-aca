@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 
 export default class Notification extends Component {
   state = {
-    notifications: []
+    notifications: [],
   };
   componentDidMount() {
     let currentUser = localStorage.getItem('currentUser');
     if (currentUser) currentUser = JSON.parse(currentUser);
     getNotifications(currentUser._id).then(({ data }) => {
       this.setState({
-        notifications: data
+        notifications: data,
       });
     });
   }
@@ -19,8 +19,8 @@ export default class Notification extends Component {
   render() {
     const { notifications } = this.state;
     const sortedNotif = notifications.sort((a, b) => b.createdAt - a.createdAt);
-    const readedNotif = sortedNotif.filter(n => n.read);
-    const unreadedNotif = sortedNotif.filter(n => !n.read);
+    const readedNotif = sortedNotif.filter((n) => n.read);
+    const unreadedNotif = sortedNotif.filter((n) => !n.read);
 
     return (
       <div>
@@ -28,8 +28,8 @@ export default class Notification extends Component {
         {unreadedNotif.length === 0 ? (
           <span>(Aucune notifications)</span>
         ) : (
-          <ul className='list-group'>
-            {unreadedNotif.map(n => {
+          <ul className="list-group">
+            {unreadedNotif.map((n) => {
               let targetUrl = '';
               switch (n.type) {
                 case 'RESPONSE':
@@ -44,19 +44,19 @@ export default class Notification extends Component {
               }
               return (
                 <li
-                  className='list-group-item list-group-item-dark'
+                  className="list-group-item list-group-item-dark"
                   key={n._id}
                   style={{ marginBottom: '10px' }}
                 >
                   <img
                     style={{ width: '50px' }}
-                    src='/costar.jpg'
-                    className='img-thumbnail'
-                    alt='costar'
+                    src="/costar.jpg"
+                    className="img-thumbnail"
+                    alt="costar"
                   />
                   <Link
                     style={{ color: 'black' }}
-                    to={targetUrl + n.targetEntity}
+                    to={'/student' + targetUrl + n.targetEntity}
                   >
                     {n.body}
                   </Link>{' '}
@@ -69,8 +69,8 @@ export default class Notification extends Component {
         {readedNotif.length === 0 ? (
           <span>(Aucune notifications)</span>
         ) : (
-          <ul className='list-group'>
-            {readedNotif.map(n => {
+          <ul className="list-group">
+            {readedNotif.map((n) => {
               let targetUrl = '';
               switch (n.type) {
                 case 'RESPONSE':
@@ -85,19 +85,19 @@ export default class Notification extends Component {
               }
               return (
                 <li
-                  className='list-group-item list-group-item-dark'
+                  className="list-group-item list-group-item-dark"
                   key={n._id}
                   style={{ marginBottom: '10px' }}
                 >
                   <img
                     style={{ width: '50px' }}
-                    src='/costar.jpg'
-                    className='img-thumbnail'
-                    alt='costar'
+                    src="/costar.jpg"
+                    className="img-thumbnail"
+                    alt="costar"
                   />
                   <Link
                     style={{ color: 'black' }}
-                    to={targetUrl + n.targetEntity}
+                    to={'/student' + targetUrl + n.targetEntity}
                   >
                     {n.body}
                   </Link>{' '}

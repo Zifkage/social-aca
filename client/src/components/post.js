@@ -14,13 +14,13 @@ const post = (props) => {
   if (user) {
     toProfile =
       props.post.author._id === user._id
-        ? `/viewer/profile/${props.post.author._id}`
-        : `/profile/${props.post.author._id}`;
+        ? `student/viewer/profile/${props.post.author._id}`
+        : `student/profile/${props.post.author._id}`;
     userVote = props.post.votes.find((v) => {
       return v.author._id === user._id;
     });
   } else {
-    toProfile = `/profile/${props.post.author._id}`;
+    toProfile = `student/profile/${props.post.author._id}`;
   }
   const upCount = props.post.votes.filter((v) => {
     return v.type === 'up';
@@ -128,6 +128,16 @@ const post = (props) => {
               supprimer
             </button>
           )}
+
+        {props.post.file && (
+          <a
+            className="file"
+            href={`http://localhost:8080/file/${props.post.file}`}
+            download
+          >
+            <i className="fa fa-file" />
+          </a>
+        )}
         {props.type === 'response' && props.postAuthor._id === user._id && (
           <button
             onClick={() => props.onSolve(props.post._id)}

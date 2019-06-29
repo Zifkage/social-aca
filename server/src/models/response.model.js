@@ -20,6 +20,7 @@ const ResponseSchema = new mongoose.Schema({
     default: false,
   },
   votes: [Vote.schema],
+  file: '',
 });
 
 export default {

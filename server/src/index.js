@@ -13,6 +13,21 @@ import handlers from './handlers';
 import generateErrorMessage from './system-messages/errors';
 import mongoose from 'mongoose';
 import db from './models';
+import multer from 'multer';
+
+let currentFile;
+
+let storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'public');
+  },
+  filename: function(req, file, cb) {
+    currentFile = Date.now() + '-' + file.originalname;
+    cb(null, currentFile);
+  },
+});
+
+let upload = multer({ storage: storage }).single('file');
 
 const handlerToEngineMap = new Map([
   [handlers.users.create, engines.users.create],
@@ -47,11 +62,11 @@ mongoose.connection.on('error', (e) => {
   throw new Error(e);
 });
 
+app.use('/file', express.static('public'));
 app.use(bodyParser.json({ limit: 1e6 }));
 
 app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
-app.use(checkContentTypeIsJson);
 
 app.get('/notifications/:userId', (req, res) => {
   db.Notification.find({
@@ -220,16 +235,21 @@ app.post(
 );
 
 // POSTS
-app.post(
-  '/posts',
-  checkUserAuth(db),
-  injectHandlerDependencies(
-    handlers.posts.create,
-    db,
-    handlerToEngineMap,
-    generateErrorMessage,
-  ),
-);
+app.post('/posts', (req, res) => {
+  upload(req, res, function(err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json(err);
+    } else if (err) {
+      return res.status(500).json(err);
+    }
+    db.Post.create({
+      ...req.body,
+      file: req.file ? currentFile : '',
+      author: db.currentUser[req.get('token')],
+    });
+    return res.status(200).send(req.file);
+  });
+});
 
 app.get(
   '/posts/:postId',
@@ -264,16 +284,44 @@ app.patch(
 );
 
 // RESPONSE
-app.post(
-  '/responses/:postId',
-  checkUserAuth(db),
-  injectHandlerDependencies(
-    handlers.responses.create,
-    db,
-    handlerToEngineMap,
-    generateErrorMessage,
-  ),
-);
+app.post('/responses/:postId', (req, res) => {
+  upload(req, res, function(err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json(err);
+    } else if (err) {
+      return res.status(500).json(err);
+    }
+    db.Post.findOne({ _id: req.params.postId }).then((post) => {
+      const cU = db.currentUser[req.get('token')];
+      const response = new db.Response({
+        ...req.body,
+        file: req.file ? currentFile : '',
+      });
+      response.author = cU;
+
+      post.responses.push(response);
+
+      post.save((err) => {
+        if (err) {
+          throw err;
+        }
+        if (cU._id !== post.author._id) {
+          const notification = new db.Notification({
+            author: cU,
+            targetUser: post.author._id,
+            type: 'RESPONSE',
+            targetEntity: post._id,
+            body: `${cU.name} a répondu a une de vos préoccupations`,
+          });
+          notification.save((err) => {
+            if (err) throw err;
+            return res.status(200).send(req.file);
+          });
+        }
+      });
+    });
+  });
+});
 
 app.post(
   '/responses/:postId/:responseId/vote',
